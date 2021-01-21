@@ -1,18 +1,20 @@
 package beatboxClient;
 
+import beatboxServer.MusicServer;
 import java.awt.Component;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
 import javax.sound.midi.*;
 import javax.swing.JCheckBox;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author Balázs
  */
 public class BeatBoxClient extends javax.swing.JFrame {
-    
+
     private ArrayList<JCheckBox> checkboxList; //all the checkboxes
     private Vector<String> listVector = new Vector<>(); //good question, this needs to be replaced anyway
     private String userName; //name of the user
@@ -24,30 +26,33 @@ public class BeatBoxClient extends javax.swing.JFrame {
     private Sequence mySequence = null;
     private Track track;
     int[] instruments = {35, 42, 46, 38, 49, 39, 50, 60, 70, 72, 64, 56, 58, 47, 67, 63};
-    
+
     public BeatBoxClient() {
         initComponents();
         getCheckBoxes();
         sortCheckBoxList();
+        //Might add an enter name option later
         startUp("Balazs");
     }
-    
-    void startUp(String name) {
+
+    private void startUp(String name) {
         userName = name;
         // open connection to the server        
         try {
             Socket sock = new Socket("127.0.0.1", 4242);            //the connection between the client and the server from the client side
             out = new ObjectOutputStream(sock.getOutputStream());
             in = new ObjectInputStream(sock.getInputStream());
-            //    Thread remote = new Thread(new RemoteReader());
-            //    remote.start();
+            Thread remote = new Thread(new RemoteReader());
+            remote.start();
         } catch (IOException ex) {
-            System.out.println("Couldn't connect to server.");
+            btSendRythm.setEnabled(false);
+            btSend.setEnabled(false);
+            JOptionPane.showMessageDialog(rootPane, "Server not available.", "Server connection error.", JOptionPane.OK_OPTION);
         }
         setUpMidi();
     }
-    
-    void setUpMidi() {
+
+    private void setUpMidi() {
         try {
             sequencer = MidiSystem.getSequencer(); //The sequencer is the thing that plays the music. It sequences all the MIDI information into a 'song'.
             sequencer.open();
@@ -57,16 +62,52 @@ public class BeatBoxClient extends javax.swing.JFrame {
         } catch (MidiUnavailableException | InvalidMidiDataException ex) {
         }
     }
+
     /**
-    * Sorts the chekboxes into order, so they will correspond with how they appear on the screen. 
-    */
-    private void sortCheckBoxList(){
+     * Sorts the chekboxes into order, so they will correspond with how they
+     * appear on the screen.
+     */
+    private void sortCheckBoxList() {
         checkboxList.sort(new CheckBoxComparator());
     }
+    
+    public void changeSequence(boolean[] checkboxState) {
+        for (int i = 0; i < 256; i++) {
+            JCheckBox check = (JCheckBox) checkboxList.get(i);
+            if (checkboxState[i]) {
+                check.setSelected(true);
+            } else {
+                check.setSelected(false);
+            }
+        } // close loop
+    }
+
+    public class RemoteReader implements Runnable {
+
+        boolean[] checkboxState = null;
+        String nameToShow = null;
+        Object obj = null;
+
+        @Override
+        public void run() {
+            try {
+                while ((obj = in.readObject()) != null) {
+                    nameToShow = (String) obj;
+                    checkboxState = (boolean[]) in.readObject();
+                    otherSeqsMap.put(nameToShow, checkboxState);
+                    listVector.add(nameToShow);
+                    jlIncomingList.setListData(listVector);
+                } // close while
+            } catch (ClassNotFoundException | IOException ex) {
+            }
+        } // close run
+    } // close inner class
+
     /**
-     * The method collects all the components from the jpInstruments panel, which contains the musical instrument labels and all the checkboxes.
+     * The method collects all the components from the jpInstruments panel,
+     * which contains the musical instrument labels and all the checkboxes.
      * Then, puts all the checkboxes into the checkboxList arraylist.
-     */    
+     */
     private void getCheckBoxes() {
         checkboxList = new ArrayList<>();
         Component[] components = jpInstruments.getComponents();
@@ -74,9 +115,9 @@ public class BeatBoxClient extends javax.swing.JFrame {
             if (component.getClass().equals(JCheckBox.class)) {
                 checkboxList.add((JCheckBox) component);
             }
-        }        
+        }
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -371,7 +412,7 @@ public class BeatBoxClient extends javax.swing.JFrame {
         jlIncomingList = new javax.swing.JList<>();
         jLabel19 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTextArea3 = new javax.swing.JTextArea();
+        tfUserMessage = new javax.swing.JTextField();
         btSend = new javax.swing.JButton();
         btCancel = new javax.swing.JButton();
         jpInstructions = new javax.swing.JPanel();
@@ -1401,12 +1442,32 @@ public class BeatBoxClient extends javax.swing.JFrame {
         });
 
         btTempoUp.setText("Tempo Up");
+        btTempoUp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btTempoUpActionPerformed(evt);
+            }
+        });
 
         btTempoDown.setText("Tempo Down");
+        btTempoDown.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btTempoDownActionPerformed(evt);
+            }
+        });
 
         btSendRythm.setText("Send Rythm");
+        btSendRythm.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btSendRythmActionPerformed(evt);
+            }
+        });
 
         btExit.setText("Exit");
+        btExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btExitActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jpControlsLayout = new javax.swing.GroupLayout(jpControls);
         jpControls.setLayout(jpControlsLayout);
@@ -1450,17 +1511,30 @@ public class BeatBoxClient extends javax.swing.JFrame {
 
         jpChat.setBorder(javax.swing.BorderFactory.createTitledBorder("Chat"));
 
+        jlIncomingList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                jlIncomingListValueChanged(evt);
+            }
+        });
         jScrollPane1.setViewportView(jlIncomingList);
 
         jLabel19.setText("Your message:");
 
-        jTextArea3.setColumns(20);
-        jTextArea3.setRows(5);
-        jScrollPane3.setViewportView(jTextArea3);
+        jScrollPane3.setViewportView(tfUserMessage);
 
         btSend.setText("Send");
+        btSend.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btSendActionPerformed(evt);
+            }
+        });
 
         btCancel.setText("Cancel");
+        btCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btCancelActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jpChatLayout = new javax.swing.GroupLayout(jpChat);
         jpChat.setLayout(jpChatLayout);
@@ -1469,13 +1543,12 @@ public class BeatBoxClient extends javax.swing.JFrame {
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 274, Short.MAX_VALUE)
             .addComponent(jScrollPane3)
             .addGroup(jpChatLayout.createSequentialGroup()
-                .addGroup(jpChatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel19)
-                    .addGroup(jpChatLayout.createSequentialGroup()
-                        .addComponent(btSend)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addComponent(jLabel19)
+                .addGap(0, 203, Short.MAX_VALUE))
+            .addGroup(jpChatLayout.createSequentialGroup()
+                .addComponent(btSend, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jpChatLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btCancel, btSend});
@@ -1499,7 +1572,7 @@ public class BeatBoxClient extends javax.swing.JFrame {
         jTextArea2.setEditable(false);
         jTextArea2.setColumns(20);
         jTextArea2.setRows(5);
-        jTextArea2.setText("- Select the checkboxes with the \n  instruments you want to use.\n\n- Click Start to start the music, \n  click Stop to end.\n\n- Click Tempo Up / Down to\n  modify the speed of your tune.\n\n- Click Send Rythm to share your\n  music with the others in the chat.\n\n- Click Exit to quit.\n  (Shocking, I know.)");
+        jTextArea2.setText("- Select the checkboxes with the \n  instruments you want to use.\n\n- Click Start to start the music, \n  click Stop to end.\n\n- Click Tempo Up / Down to\n  modify the speed of your tune.\n\n- Click Send Rythm to share your\n  music with the others in the chat.\n (Only if server connection is working.)\n\n- Click Exit to quit.\n  (Shocking, I know.)");
         jScrollPane2.setViewportView(jTextArea2);
 
         javax.swing.GroupLayout jpInstructionsLayout = new javax.swing.GroupLayout(jpInstructions);
@@ -1557,13 +1630,80 @@ public class BeatBoxClient extends javax.swing.JFrame {
     private void btStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopActionPerformed
         sequencer.stop();
     }//GEN-LAST:event_btStopActionPerformed
-    
+
+    private void btTempoUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btTempoUpActionPerformed
+        float tempoFactor = sequencer.getTempoFactor();
+        sequencer.setTempoFactor(tempoFactor * 1.03f);
+    }//GEN-LAST:event_btTempoUpActionPerformed
+
+    private void btTempoDownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btTempoDownActionPerformed
+        float tempoFactor = sequencer.getTempoFactor();
+        sequencer.setTempoFactor(tempoFactor * 0.97f);
+    }//GEN-LAST:event_btTempoDownActionPerformed
+
+    private void btSendRythmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSendRythmActionPerformed
+        // make an array of just the STATE of the checkboxes and write it to the server
+        boolean[] checkboxState = new boolean[256];
+        for (int i = 0; i < 256; i++) {
+            JCheckBox check = (JCheckBox) checkboxList.get(i);
+            if (check.isSelected()) {
+                checkboxState[i] = true;
+            }
+        } // close loop
+        try {
+            out.writeObject(checkboxState);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage(), "Server connection error.", JOptionPane.OK_OPTION);
+        }
+    }//GEN-LAST:event_btSendRythmActionPerformed
+
+    private void btExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btExitActionPerformed
+        try {
+            sequencer.close();
+            in.close();
+            out.close();
+            System.exit(0);
+        } catch (IOException ex) {
+        } finally {
+            System.exit(0);
+        }
+    }//GEN-LAST:event_btExitActionPerformed
+
+    private void btSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSendActionPerformed
+        try {
+            out.writeObject(userName + ": " + tfUserMessage.getText());            
+            tfUserMessage.setText("");
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(rootPane, ex.getMessage(), "Server connection error.", JOptionPane.OK_OPTION);
+        }
+    }//GEN-LAST:event_btSendActionPerformed
+
+    private void jlIncomingListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jlIncomingListValueChanged
+        if (!evt.getValueIsAdjusting()) {
+                String selected = (String) jlIncomingList.getSelectedValue();
+                if (selected != null) {
+                    // now go to the map and change the sequence
+                    boolean[] selectedState = (boolean[]) otherSeqsMap.get(selected);
+                    changeSequence(selectedState);
+                    sequencer.stop();
+                    buildTrackAndStart();
+                }
+            }
+    }//GEN-LAST:event_jlIncomingListValueChanged
+
+    private void btCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCancelActionPerformed
+        tfUserMessage.setText("");
+    }//GEN-LAST:event_btCancelActionPerformed
+
     public void buildTrackAndStart() {
-        ArrayList<Integer> trackList = new ArrayList<>();       //an arraylist of integers that holds the 'list of tracks'
+        ArrayList<Integer> trackList;       //an arraylist of integers that holds the 'list of tracks'
         sequence.deleteTrack(track);                            // When start is pressed, it deletes whatever was stored before
         track = sequence.createTrack();                         // Creates a new track instead of the just deleted one
 
         for (int i = 0; i < 16; i++) {
+
+            trackList = new ArrayList<>();
+
             for (int j = 0; j < 16; j++) {  //loops through all the checkboxes in the checkbox list
                 JCheckBox jc = (JCheckBox) checkboxList.get(j + (16 * i));
                 if (jc.isSelected()) {
@@ -1576,7 +1716,7 @@ public class BeatBoxClient extends javax.swing.JFrame {
             makeTracks(trackList); // creates a track from the arraylist for every instrument
         } // close outer loop
 
-        track.add(makeEvent(192, 9, 1, 0, 15)); // so we always go to full 16 beats
+        track.add(makeEvent(192, 9, 1, 0, 15)); //So we always go to full 16 beats. 192 stands for Program change for changing default instrument.
         try {
             sequencer.setSequence(sequence);                        //adds the sequence to the sequencer
             sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);    //set continuos looping
@@ -1941,12 +2081,12 @@ public class BeatBoxClient extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextArea jTextArea2;
-    private javax.swing.JTextArea jTextArea3;
     private javax.swing.JList<String> jlIncomingList;
     private javax.swing.JPanel jpChat;
     private javax.swing.JPanel jpControls;
     private javax.swing.JPanel jpHeader;
     private javax.swing.JPanel jpInstructions;
     private javax.swing.JPanel jpInstruments;
+    private javax.swing.JTextField tfUserMessage;
     // End of variables declaration//GEN-END:variables
 }

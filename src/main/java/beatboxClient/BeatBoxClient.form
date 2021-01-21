@@ -1836,21 +1836,33 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Tempo Up"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btTempoUpActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btTempoDown">
           <Properties>
             <Property name="text" type="java.lang.String" value="Tempo Down"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btTempoDownActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btSendRythm">
           <Properties>
             <Property name="text" type="java.lang.String" value="Send Rythm"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btSendRythmActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btExit">
           <Properties>
             <Property name="text" type="java.lang.String" value="Exit"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btExitActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -1869,15 +1881,13 @@
               <Component id="jScrollPane1" pref="274" max="32767" attributes="0"/>
               <Component id="jScrollPane3" alignment="0" max="32767" attributes="0"/>
               <Group type="102" attributes="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jLabel19" min="-2" max="-2" attributes="0"/>
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="btSend" linkSize="9" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="btCancel" linkSize="9" min="-2" pref="106" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  <Component id="jLabel19" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace min="0" pref="203" max="32767" attributes="0"/>
+              </Group>
+              <Group type="102" alignment="0" attributes="0">
+                  <Component id="btSend" linkSize="10" min="-2" pref="129" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
+                  <Component id="btCancel" linkSize="10" min="-2" pref="106" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -1909,6 +1919,9 @@
                   <StringArray count="0"/>
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="jlIncomingListValueChanged"/>
+              </Events>
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
               </AuxValues>
@@ -1924,11 +1937,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="javax.swing.JTextArea" name="jTextArea3">
-              <Properties>
-                <Property name="columns" type="int" value="20"/>
-                <Property name="rows" type="int" value="5"/>
-              </Properties>
+            <Component class="javax.swing.JTextField" name="tfUserMessage">
             </Component>
           </SubComponents>
         </Container>
@@ -1936,11 +1945,17 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Send"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btSendActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btCancel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Cancel"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btCancelActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -1975,7 +1990,7 @@
                 <Property name="editable" type="boolean" value="false"/>
                 <Property name="columns" type="int" value="20"/>
                 <Property name="rows" type="int" value="5"/>
-                <Property name="text" type="java.lang.String" value="- Select the checkboxes with the &#xa;  instruments you want to use.&#xa;&#xa;- Click Start to start the music, &#xa;  click Stop to end.&#xa;&#xa;- Click Tempo Up / Down to&#xa;  modify the speed of your tune.&#xa;&#xa;- Click Send Rythm to share your&#xa;  music with the others in the chat.&#xa;&#xa;- Click Exit to quit.&#xa;  (Shocking, I know.)"/>
+                <Property name="text" type="java.lang.String" value="- Select the checkboxes with the &#xa;  instruments you want to use.&#xa;&#xa;- Click Start to start the music, &#xa;  click Stop to end.&#xa;&#xa;- Click Tempo Up / Down to&#xa;  modify the speed of your tune.&#xa;&#xa;- Click Send Rythm to share your&#xa;  music with the others in the chat.&#xa; (Only if server connection is working.)&#xa;&#xa;- Click Exit to quit.&#xa;  (Shocking, I know.)"/>
               </Properties>
             </Component>
           </SubComponents>

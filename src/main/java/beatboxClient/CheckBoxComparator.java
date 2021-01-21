@@ -4,7 +4,7 @@ import java.util.Comparator;
 import javax.swing.JCheckBox;
 
 /**
- *
+ * Sorts an arrayList of checkboxes according to where they appear on the screen.
  * @author Balázs
  */
 public class CheckBoxComparator implements Comparator{
