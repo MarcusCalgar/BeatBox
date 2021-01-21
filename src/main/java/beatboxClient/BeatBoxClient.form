@@ -65,7 +65,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jpHeader" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <Component id="jpInstructions" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -73,7 +73,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jpChat" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="jpInstruments" pref="0" max="32767" attributes="0"/>
+                  <Component id="jpInstruments" min="-2" pref="466" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -1785,12 +1785,12 @@
                           <Component id="btTempoDown" linkSize="7" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="btSendRythm" linkSize="7" min="-2" max="-2" attributes="0"/>
+                          <Component id="btClearInstruments" linkSize="7" min="-2" pref="129" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="btExit" linkSize="7" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="22" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -1808,8 +1808,8 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="btSendRythm" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="btExit" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="btClearInstruments" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -1819,6 +1819,9 @@
         <Component class="javax.swing.JButton" name="btStart">
           <Properties>
             <Property name="text" type="java.lang.String" value="Start"/>
+            <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+              <Color id="Hand Cursor"/>
+            </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btStartActionPerformed"/>
@@ -1827,6 +1830,9 @@
         <Component class="javax.swing.JButton" name="btStop">
           <Properties>
             <Property name="text" type="java.lang.String" value="Stop"/>
+            <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+              <Color id="Hand Cursor"/>
+            </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btStopActionPerformed"/>
@@ -1835,6 +1841,9 @@
         <Component class="javax.swing.JButton" name="btTempoUp">
           <Properties>
             <Property name="text" type="java.lang.String" value="Tempo Up"/>
+            <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+              <Color id="Hand Cursor"/>
+            </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btTempoUpActionPerformed"/>
@@ -1843,25 +1852,34 @@
         <Component class="javax.swing.JButton" name="btTempoDown">
           <Properties>
             <Property name="text" type="java.lang.String" value="Tempo Down"/>
+            <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+              <Color id="Hand Cursor"/>
+            </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btTempoDownActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btSendRythm">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Send Rythm"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btSendRythmActionPerformed"/>
-          </Events>
-        </Component>
         <Component class="javax.swing.JButton" name="btExit">
           <Properties>
             <Property name="text" type="java.lang.String" value="Exit"/>
+            <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+              <Color id="Hand Cursor"/>
+            </Property>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btExitActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="btClearInstruments">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Clear Checkboxes"/>
+            <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+              <Color id="Hand Cursor"/>
+            </Property>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btClearInstrumentsActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>
@@ -1878,16 +1896,16 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="jScrollPane1" pref="274" max="32767" attributes="0"/>
+              <Component id="jScrollPane1" max="32767" attributes="0"/>
               <Component id="jScrollPane3" alignment="0" max="32767" attributes="0"/>
               <Group type="102" attributes="0">
                   <Component id="jLabel19" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace min="0" pref="203" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
               </Group>
               <Group type="102" alignment="0" attributes="0">
-                  <Component id="btSend" linkSize="10" min="-2" pref="129" max="-2" attributes="0"/>
+                  <Component id="btSendRythm" linkSize="13" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
-                  <Component id="btCancel" linkSize="10" min="-2" pref="106" max="-2" attributes="0"/>
+                  <Component id="btClearMessageField" linkSize="13" min="-2" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -1901,8 +1919,8 @@
                   <Component id="jScrollPane3" min="-2" pref="40" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="btSend" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="btCancel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="btClearMessageField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="btSendRythm" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -1941,20 +1959,26 @@
             </Component>
           </SubComponents>
         </Container>
-        <Component class="javax.swing.JButton" name="btSend">
+        <Component class="javax.swing.JButton" name="btClearMessageField">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Send"/>
+            <Property name="text" type="java.lang.String" value="Clear Message"/>
+            <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+              <Color id="Hand Cursor"/>
+            </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btSendActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btClearMessageFieldActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="btCancel">
+        <Component class="javax.swing.JButton" name="btSendRythm">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Cancel"/>
+            <Property name="text" type="java.lang.String" value="Send Rythm &amp; Message"/>
+            <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
+              <Color id="Hand Cursor"/>
+            </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btCancelActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btSendRythmActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>

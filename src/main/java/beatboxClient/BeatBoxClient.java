@@ -1,11 +1,11 @@
 package beatboxClient;
 
-import beatboxServer.MusicServer;
 import java.awt.Component;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
 import javax.sound.midi.*;
+import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 
@@ -16,14 +16,13 @@ import javax.swing.JOptionPane;
 public class BeatBoxClient extends javax.swing.JFrame {
 
     private ArrayList<JCheckBox> checkboxList; //all the checkboxes
-    private Vector<String> listVector = new Vector<>(); //good question, this needs to be replaced anyway
+    private DefaultListModel nameList = new DefaultListModel();//Model that holds the chat data
     private String userName; //name of the user
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private HashMap<String, boolean[]> otherSeqsMap = new HashMap<>(); //hashmap containing the music from others
     private Sequencer sequencer;
     private Sequence sequence;
-    private Sequence mySequence = null;
     private Track track;
     int[] instruments = {35, 42, 46, 38, 49, 39, 50, 60, 70, 72, 64, 56, 58, 47, 67, 63};
 
@@ -42,11 +41,10 @@ public class BeatBoxClient extends javax.swing.JFrame {
             Socket sock = new Socket("127.0.0.1", 4242);            //the connection between the client and the server from the client side
             out = new ObjectOutputStream(sock.getOutputStream());
             in = new ObjectInputStream(sock.getInputStream());
-            Thread remote = new Thread(new RemoteReader());
+            Thread remote = new Thread(new RemoteReader());         //This thread is listening for incoming messages
             remote.start();
         } catch (IOException ex) {
             btSendRythm.setEnabled(false);
-            btSend.setEnabled(false);
             JOptionPane.showMessageDialog(rootPane, "Server not available.", "Server connection error.", JOptionPane.OK_OPTION);
         }
         setUpMidi();
@@ -95,8 +93,8 @@ public class BeatBoxClient extends javax.swing.JFrame {
                     nameToShow = (String) obj;
                     checkboxState = (boolean[]) in.readObject();
                     otherSeqsMap.put(nameToShow, checkboxState);
-                    listVector.add(nameToShow);
-                    jlIncomingList.setListData(listVector);
+                    nameList.addElement(nameToShow);
+                    jlIncomingList.setModel(nameList);
                 } // close while
             } catch (ClassNotFoundException | IOException ex) {
             }
@@ -405,16 +403,16 @@ public class BeatBoxClient extends javax.swing.JFrame {
         btStop = new javax.swing.JButton();
         btTempoUp = new javax.swing.JButton();
         btTempoDown = new javax.swing.JButton();
-        btSendRythm = new javax.swing.JButton();
         btExit = new javax.swing.JButton();
+        btClearInstruments = new javax.swing.JButton();
         jpChat = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jlIncomingList = new javax.swing.JList<>();
         jLabel19 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         tfUserMessage = new javax.swing.JTextField();
-        btSend = new javax.swing.JButton();
-        btCancel = new javax.swing.JButton();
+        btClearMessageField = new javax.swing.JButton();
+        btSendRythm = new javax.swing.JButton();
         jpInstructions = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea2 = new javax.swing.JTextArea();
@@ -1428,6 +1426,7 @@ public class BeatBoxClient extends javax.swing.JFrame {
         jpControls.setBorder(javax.swing.BorderFactory.createTitledBorder("Controls"));
 
         btStart.setText("Start");
+        btStart.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btStart.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btStartActionPerformed(evt);
@@ -1435,6 +1434,7 @@ public class BeatBoxClient extends javax.swing.JFrame {
         });
 
         btStop.setText("Stop");
+        btStop.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btStop.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btStopActionPerformed(evt);
@@ -1442,6 +1442,7 @@ public class BeatBoxClient extends javax.swing.JFrame {
         });
 
         btTempoUp.setText("Tempo Up");
+        btTempoUp.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btTempoUp.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btTempoUpActionPerformed(evt);
@@ -1449,23 +1450,26 @@ public class BeatBoxClient extends javax.swing.JFrame {
         });
 
         btTempoDown.setText("Tempo Down");
+        btTempoDown.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btTempoDown.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btTempoDownActionPerformed(evt);
             }
         });
 
-        btSendRythm.setText("Send Rythm");
-        btSendRythm.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btSendRythmActionPerformed(evt);
-            }
-        });
-
         btExit.setText("Exit");
+        btExit.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         btExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btExitActionPerformed(evt);
+            }
+        });
+
+        btClearInstruments.setText("Clear Checkboxes");
+        btClearInstruments.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btClearInstruments.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btClearInstrumentsActionPerformed(evt);
             }
         });
 
@@ -1485,13 +1489,13 @@ public class BeatBoxClient extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btTempoDown))
                     .addGroup(jpControlsLayout.createSequentialGroup()
-                        .addComponent(btSendRythm)
+                        .addComponent(btClearInstruments, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btExit)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
 
-        jpControlsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btExit, btSendRythm, btStart, btStop, btTempoDown, btTempoUp});
+        jpControlsLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btClearInstruments, btExit, btStart, btStop, btTempoDown, btTempoUp});
 
         jpControlsLayout.setVerticalGroup(
             jpControlsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1505,8 +1509,8 @@ public class BeatBoxClient extends javax.swing.JFrame {
                     .addComponent(btTempoDown))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jpControlsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btSendRythm)
-                    .addComponent(btExit)))
+                    .addComponent(btExit)
+                    .addComponent(btClearInstruments)))
         );
 
         jpChat.setBorder(javax.swing.BorderFactory.createTitledBorder("Chat"));
@@ -1522,17 +1526,19 @@ public class BeatBoxClient extends javax.swing.JFrame {
 
         jScrollPane3.setViewportView(tfUserMessage);
 
-        btSend.setText("Send");
-        btSend.addActionListener(new java.awt.event.ActionListener() {
+        btClearMessageField.setText("Clear Message");
+        btClearMessageField.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btClearMessageField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btSendActionPerformed(evt);
+                btClearMessageFieldActionPerformed(evt);
             }
         });
 
-        btCancel.setText("Cancel");
-        btCancel.addActionListener(new java.awt.event.ActionListener() {
+        btSendRythm.setText("Send Rythm & Message");
+        btSendRythm.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btSendRythm.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btCancelActionPerformed(evt);
+                btSendRythmActionPerformed(evt);
             }
         });
 
@@ -1540,18 +1546,18 @@ public class BeatBoxClient extends javax.swing.JFrame {
         jpChat.setLayout(jpChatLayout);
         jpChatLayout.setHorizontalGroup(
             jpChatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 274, Short.MAX_VALUE)
+            .addComponent(jScrollPane1)
             .addComponent(jScrollPane3)
             .addGroup(jpChatLayout.createSequentialGroup()
                 .addComponent(jLabel19)
-                .addGap(0, 203, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(jpChatLayout.createSequentialGroup()
-                .addComponent(btSend, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btSendRythm)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(btClearMessageField))
         );
 
-        jpChatLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btCancel, btSend});
+        jpChatLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {btClearMessageField, btSendRythm});
 
         jpChatLayout.setVerticalGroup(
             jpChatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1563,8 +1569,8 @@ public class BeatBoxClient extends javax.swing.JFrame {
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jpChatLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btSend)
-                    .addComponent(btCancel)))
+                    .addComponent(btClearMessageField)
+                    .addComponent(btSendRythm)))
         );
 
         jpInstructions.setBorder(javax.swing.BorderFactory.createTitledBorder("How to Use"));
@@ -1609,14 +1615,14 @@ public class BeatBoxClient extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jpHeader, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jpInstructions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jpControls, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jpChat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jpInstruments, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(jpInstruments, javax.swing.GroupLayout.PREFERRED_SIZE, 466, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -1651,10 +1657,12 @@ public class BeatBoxClient extends javax.swing.JFrame {
             }
         } // close loop
         try {
+            out.writeObject(userName + ": " + tfUserMessage.getText());
             out.writeObject(checkboxState);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(rootPane, ex.getMessage(), "Server connection error.", JOptionPane.OK_OPTION);
         }
+        tfUserMessage.setText("");
     }//GEN-LAST:event_btSendRythmActionPerformed
 
     private void btExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btExitActionPerformed
@@ -1669,15 +1677,6 @@ public class BeatBoxClient extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btExitActionPerformed
 
-    private void btSendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSendActionPerformed
-        try {
-            out.writeObject(userName + ": " + tfUserMessage.getText());            
-            tfUserMessage.setText("");
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(rootPane, ex.getMessage(), "Server connection error.", JOptionPane.OK_OPTION);
-        }
-    }//GEN-LAST:event_btSendActionPerformed
-
     private void jlIncomingListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jlIncomingListValueChanged
         if (!evt.getValueIsAdjusting()) {
                 String selected = (String) jlIncomingList.getSelectedValue();
@@ -1691,9 +1690,15 @@ public class BeatBoxClient extends javax.swing.JFrame {
             }
     }//GEN-LAST:event_jlIncomingListValueChanged
 
-    private void btCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCancelActionPerformed
+    private void btClearMessageFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btClearMessageFieldActionPerformed
         tfUserMessage.setText("");
-    }//GEN-LAST:event_btCancelActionPerformed
+    }//GEN-LAST:event_btClearMessageFieldActionPerformed
+
+    private void btClearInstrumentsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btClearInstrumentsActionPerformed
+        checkboxList.stream().forEach(checkbox -> {
+            checkbox.setSelected(false);
+        });
+    }//GEN-LAST:event_btClearInstrumentsActionPerformed
 
     public void buildTrackAndStart() {
         ArrayList<Integer> trackList;       //an arraylist of integers that holds the 'list of tracks'
@@ -1792,9 +1797,9 @@ public class BeatBoxClient extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btCancel;
+    private javax.swing.JButton btClearInstruments;
+    private javax.swing.JButton btClearMessageField;
     private javax.swing.JButton btExit;
-    private javax.swing.JButton btSend;
     private javax.swing.JButton btSendRythm;
     private javax.swing.JButton btStart;
     private javax.swing.JButton btStop;
