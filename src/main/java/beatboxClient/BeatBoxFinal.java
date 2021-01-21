@@ -15,16 +15,16 @@ import javax.sound.midi.*;
  */
 public class BeatBoxFinal {
 
-    private JFrame theFrame;
-    private JPanel mainPanel;
-    private JList incomingList;
-    private JTextField userMessage;
-    private ArrayList<JCheckBox> checkboxList;
-    private Vector<String> listVector = new Vector<>();
-    private String userName;
-    private ObjectOutputStream out;
+    private JFrame theFrame; //main frame of the gui
+    private JPanel mainPanel; //main panel of the frame
+    private JList incomingList; //where the incoming messages are stored and shown
+    private JTextField userMessage; //where the user can write his/her own message
+    private ArrayList<JCheckBox> checkboxList; //all the checkboxes
+    private Vector<String> listVector = new Vector<>(); //good question, this needs to be replaced anyway
+    private String userName; //name of the user
+    private ObjectOutputStream out; 
     private ObjectInputStream in;
-    private HashMap<String, boolean[]> otherSeqsMap = new HashMap<>();
+    private HashMap<String, boolean[]> otherSeqsMap = new HashMap<>(); //hashmap containing the music from others
 
     private Sequencer sequencer;
     private Sequence sequence;
@@ -43,7 +43,7 @@ public class BeatBoxFinal {
         userName = name;
         // open connection to the server        
         try {
-            Socket sock = new Socket("127.0.0.1", 4242);
+            Socket sock = new Socket("127.0.0.1", 4242);            //the connection between the client and the server from the client side
             out = new ObjectOutputStream(sock.getOutputStream());
             in = new ObjectInputStream(sock.getInputStream());
             Thread remote = new Thread(new RemoteReader());
@@ -88,6 +88,10 @@ public class BeatBoxFinal {
         userMessage = new JTextField();
         buttonBox.add(userMessage);
 
+        /*
+        The list containing the incoming music is set to single selection. It's data is from the listVector variable
+        */
+        
         incomingList = new JList();
         incomingList.addListSelectionListener(new MyListSelectionListener());
         incomingList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -126,42 +130,43 @@ public class BeatBoxFinal {
 
     public void setUpMidi() {
         try {
-            sequencer = MidiSystem.getSequencer();
+            sequencer = MidiSystem.getSequencer(); //The sequencer is the thing that plays the music. It sequences all the MIDI information into a 'song'.
             sequencer.open();
-            sequence = new Sequence(Sequence.PPQ, 4);
-            track = sequence.createTrack();
+            sequence = new Sequence(Sequence.PPQ, 4);   //The sequence is the actual song that will be played. A sequence has a Track, that holds the actual information.
+            track = sequence.createTrack(); //The Track lives in the Sequence, and the MIDI data (Midi Events) lives in the Track.
             sequencer.setTempoInBPM(120);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (MidiUnavailableException | InvalidMidiDataException ex) {
         }
     }
 
     public void buildTrackAndStart() {
-        ArrayList<Integer> trackList = null;
-        sequence.deleteTrack(track);
-        track = sequence.createTrack();
+        ArrayList<Integer> trackList;       //an arraylist of integers that holds the instruments for each
+        sequence.deleteTrack(track);                            // When start is pressed, it deletes whatever was stored before
+        track = sequence.createTrack();                         // Creates a new track instead of the just deleted one
 
         for (int i = 0; i < 16; i++) {
-            trackList = new ArrayList<Integer>();
-            for (int j = 0; j < 16; j++) {
+            
+            trackList = new ArrayList<>();
+            
+            for (int j = 0; j < 16; j++) {  //loops through all the checkboxes in the checkbox list
                 JCheckBox jc = (JCheckBox) checkboxList.get(j + (16 * i));
                 if (jc.isSelected()) {
-                    int key = instruments[i];
-                    trackList.add(new Integer(key));
+                    int key = instruments[i]; //if the box is selected, defines an int that identifies the musical instrument
+                    trackList.add(key); //adds the key to the arraylist
                 } else {
                     trackList.add(null); // because this slot should be emptied to full 16 beats
                 }
             } // close inner loop
-            makeTracks(trackList);
+            makeTracks(trackList); // creates a track from the arraylist for every instrument
         } // close outer loop
+        
         track.add(makeEvent(192, 9, 1, 0, 15)); // so we always go to full 16 beats
         try {
-            sequencer.setSequence(sequence);
-            sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
-            sequencer.start();
+            sequencer.setSequence(sequence);                        //adds the sequence to the sequencer
+            sequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);    //set continuos looping
+            sequencer.start();                                      //starts the sequencer
             sequencer.setTempoInBPM(120);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (InvalidMidiDataException ex) {
         }
     } // close method
 
@@ -171,7 +176,7 @@ public class BeatBoxFinal {
         public void actionPerformed(ActionEvent e) {
             buildTrackAndStart();
         }
-    }
+    } //invokes the buildTrackAndStart() method
 
     public class StopListener implements ActionListener {
 
@@ -215,7 +220,7 @@ public class BeatBoxFinal {
             try {
                 out.writeObject(userName + ": " + userMessage.getText());
                 out.writeObject(checkboxState);
-            } catch (Exception ex) {
+            } catch (IOException ex) {
                 System.out.println("Sorry dude. Could not send it to the server");
             }
             userMessage.setText("");
@@ -225,6 +230,7 @@ public class BeatBoxFinal {
 
     public class MyListSelectionListener implements ListSelectionListener {
 
+        @Override
         public void valueChanged(ListSelectionEvent le) {
             if (!le.getValueIsAdjusting()) {
                 String selected = (String) incomingList.getSelectedValue();
@@ -245,19 +251,19 @@ public class BeatBoxFinal {
         String nameToShow = null;
         Object obj = null;
 
+        @Override
         public void run() {
             try {
                 while ((obj = in.readObject()) != null) {
                     System.out.println("Got an object from the server");
                     System.out.println(obj.getClass());
-                    String nameToShow = (String) obj;
+                    nameToShow = (String) obj;
                     checkboxState = (boolean[]) in.readObject();
                     otherSeqsMap.put(nameToShow, checkboxState);
                     listVector.add(nameToShow);
                     incomingList.setListData(listVector);
                 } // close while
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (ClassNotFoundException | IOException ex) {
             }
         } // close run
     } // close inner class
@@ -288,20 +294,26 @@ public class BeatBoxFinal {
         for (int i = 0; i < 16; i++) {
             Integer num = (Integer) it.next();
             if (num != null) {
-                int numKey = num.intValue();
-                track.add(makeEvent(144, 9, numKey, 100, i));
-                track.add(makeEvent(128, 9, numKey, 100, i + 1));
+                track.add(makeEvent(144, 9, num, 100, i));       // MidiEvent that starts playing the actual note. Play starts at time i.
+                track.add(makeEvent(128, 9, num, 100, i + 1));   // MidiEvent that stops playing the actual note. Play stops at time i + 1.
             }
         } // close loop
     } // close makeTracks()
 
-    public MidiEvent makeEvent(int comd, int chan, int one, int two, int tick) {
+    /*
+    A MidiEvent is actual music information, that is, which notes to play, how long, etc. A Midi instruction goes inside Messages.
+    */
+    public MidiEvent makeEvent(int messageType, int channel, int noteToPlay, int velocity, int whenToPlay) {
+        //messageType is what to do. 144 is NoteOn, 122 is NoteOff
+        //channel is like which instrument to play
+        //velocity translates to loudness
+        //whenToPlay is timing
         MidiEvent event = null;
         try {
-            ShortMessage a = new ShortMessage();
-            a.setMessage(comd, chan, one, two);
-            event = new MidiEvent(a, tick);
-        } catch (Exception ex) {
+            ShortMessage a = new ShortMessage(); // Creates a ShortMessage to hold the MidiEvent information.
+            a.setMessage(messageType, channel, noteToPlay, velocity); // Put the instruction into the message
+            event = new MidiEvent(a, whenToPlay); // Creates the MidiEvent
+        } catch (InvalidMidiDataException ex) {
         }
         return event;
     } // close makeEvent()
