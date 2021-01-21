@@ -7,7 +7,6 @@ import java.util.*;
 public class MusicServer {
 
     public static void main(String[] args) {
-        System.out.println("Server is running.");
         ArrayList<ObjectOutputStream> clientOutputStreams = new ArrayList<>();  //Holds the outputstreams of the clients.
         try {
             ServerSocket serverSock = new ServerSocket(4242);   //Listens for clients on port 4242
@@ -18,7 +17,6 @@ public class MusicServer {
 
                 Thread t = new Thread(new ClientHandler(clientSocket, clientOutputStreams)); //Starts a new thread that deals with each specific client.
                 t.start();
-                System.out.println("got a connection");
             }
         } catch (IOException ex) {
         }

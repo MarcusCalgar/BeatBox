@@ -28,7 +28,6 @@ public class ClientHandler implements Runnable {
         try {
             while ((o1 = in.readObject()) != null) {
                 o2 = in.readObject();
-                System.out.println("read two objects");
                 tellEveryone(o1, o2);
             } // close while
         } catch (ClassNotFoundException | IOException ex) {
