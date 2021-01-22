@@ -44,7 +44,7 @@ public class BeatBoxClient extends javax.swing.JFrame {
             Thread remote = new Thread(new RemoteReader());         //This thread is listening for incoming messages
             remote.start();
         } catch (IOException ex) {
-            btSendRythm.setEnabled(false);
+            btSendRythm.setEnabled(false);  //No need to try to send anything if there isn't a server to send to.
             JOptionPane.showMessageDialog(rootPane, "Server not available.", "Server connection error.", JOptionPane.OK_OPTION);
         }
         setUpMidi();
